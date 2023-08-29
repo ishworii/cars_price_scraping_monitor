@@ -116,11 +116,6 @@ def main():
     scraped_copart = copart.extract_all_data(
         url=COPART_URL, headless=True, proxy_server=proxy_server
     )
-    # with open("copart_scraped.json", "w") as file:
-    #     json.dump(scraped_copart, file)
-    # with open("copart_scraped.json", "r") as file:
-    #     scraped_copart = json.load(file)
-
     process_scraped_data(scraped_copart)
 
 

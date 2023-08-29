@@ -112,14 +112,9 @@ def main():
         init_db(logger)
 
     proxy_server = utility.get_random_proxy(PROXY_LIST, logger)
-    # scraped_data = iaai.extract_all_data(
-    #     url=IAAI_URL, headless=True, proxy_server=proxy_server
-    # )
-    # with open("iaai_scraped.json", "w") as file:
-    #     json.dump(scraped_data, file)
-    with open("iaai_scraped.json", "r") as file:
-        scraped_data = json.load(file)
-
+    scraped_data = iaai.extract_all_data(
+        url=IAAI_URL, headless=True, proxy_server=proxy_server
+    )
     process_scraped_data(scraped_data)
 
 
