@@ -63,6 +63,7 @@ def extract_details_from_page(driver):
         else:
             price = price.text.strip()
             price = price.split("$")[-1]
+            price = price.replace(",", "")
 
         location = css_finder(
             each_row,
@@ -88,6 +89,15 @@ def extract_details_from_page(driver):
         else:
             thumbnail = thumbnail.get_attribute("src")
 
+        details = css_finder(
+            each_row, "span.search_result_lot_detail_meta_data_block a"
+        )
+        if not details:
+            logger.warning("Details link not found...")
+            details = ""
+        else:
+            details = details.get_attribute("href")
+
         tmp = {
             "year_make_model": year_make_model,
             "year": year,
@@ -98,6 +108,7 @@ def extract_details_from_page(driver):
             "location": location,
             "title": title,
             "thumbnail": thumbnail,
+            "details": details,
             "source": "copart",
             "loss": "",
         }

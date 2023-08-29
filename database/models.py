@@ -21,4 +21,5 @@ class CarListing(Base):
     title = Column(String)
     loss = Column(String)
     thumbnail = Column(String)
+    details = Column(String)
     source = Column(String)

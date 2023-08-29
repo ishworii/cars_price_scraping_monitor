@@ -21,15 +21,15 @@ def process_scraped_data(data):
     updated_listings = []
     new_listings = []
 
-    for item in data:
-        with get_db_session() as session:
+    # Open a single session for all the database operations
+    with get_db_session() as session:
+        for item in data:
             listing = (
                 session.query(CarListing)
                 .filter_by(
                     year_make_model=item["year_make_model"],
                     source=item["source"],
                     damage=item["damage"],
-                    loss=item["loss"],
                     location=item["location"],
                     title=item["title"],
                     thumbnail=item["thumbnail"],
@@ -37,22 +37,24 @@ def process_scraped_data(data):
                 .first()
             )
 
-            # If listing doesn't exist, add to DB and store for email notification
             if not listing:
-                print(f"Adding {item['year_make_model']} from {item['source']} to db")
+                logger.info(
+                    f"Adding {item['year_make_model']} from {item['source']} to db"
+                )
                 item["old_price"] = 0
                 new_entry = CarListing(**item)
                 session.add(new_entry)
-                session.commit()
-
                 new_listings.append(item)
-
             else:
-                print(
-                    f"entry found for {item['year_make_model']} from {item['source']},checking for price change."
-                )
-                # If the price has changed, store the data for email notification
-                if listing.buy_now_price != float(item["buy_now_price"]):
+                old_price = listing.buy_now_price
+                new_price = float(item["buy_now_price"])
+
+                # Update all attributes, even if they haven't changed
+                for key, value in item.items():
+                    setattr(listing, key, value)
+
+                # Special handling for price changes
+                if old_price != new_price:
                     updated_listings.append(
                         {
                             "thumbnail": listing.thumbnail,
@@ -60,28 +62,18 @@ def process_scraped_data(data):
                             "year": listing.year,
                             "make": listing.make,
                             "model": listing.model,
-                            "buy_now_price": item["buy_now_price"],  # New price
-                            "old_price": str(listing.buy_now_price),  # Old price
+                            "buy_now_price": new_price,
+                            "old_price": old_price,
                             "location": listing.location,
                             "damage": listing.damage,
-                            "loss": listing.loss,
                             "title": listing.title,
+                            "loss": listing.loss,
+                            "details": listing.details,
                         }
                     )
+                    logger.info(f"Updating db with new price")
 
-                    listing.price = float(item["buy_now_price"])
-
-                # Update the other columns regardless of price change
-                listing.year = item["year"]
-                listing.make = item["make"]
-                listing.model = item["model"]
-                listing.damage = item["damage"]
-                listing.location = item["location"]
-                listing.title = item["title"]
-                listing.loss = item["loss"]
-                listing.thumbnail = item["thumbnail"]
-
-                session.commit()
+            session.commit()
 
     # Email for new listings
     if new_listings:
@@ -120,9 +112,13 @@ def main():
         init_db(logger)
 
     proxy_server = utility.get_random_proxy(PROXY_LIST, logger)
-    scraped_data = iaai.extract_all_data(
-        url=IAAI_URL, headless=True, proxy_server=proxy_server
-    )
+    # scraped_data = iaai.extract_all_data(
+    #     url=IAAI_URL, headless=True, proxy_server=proxy_server
+    # )
+    # with open("iaai_scraped.json", "w") as file:
+    #     json.dump(scraped_data, file)
+    with open("iaai_scraped.json", "r") as file:
+        scraped_data = json.load(file)
 
     process_scraped_data(scraped_data)
 

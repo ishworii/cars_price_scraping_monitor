@@ -104,6 +104,12 @@ def extract_details_from_page(driver):
         else:
             loss = loss.text.strip()
 
+        details = css_finder(each_div, "h4.heading-7.rtl-disabled a")
+        if not details:
+            logger.warning("Details link not found...")
+        else:
+            details = details.get_attribute("href")
+
         # aggregate data to a dictionary
         tmp = {
             "year_make_model": year_make_model,
@@ -116,6 +122,7 @@ def extract_details_from_page(driver):
             "title": title,
             "loss": loss,
             "thumbnail": thumbnail,
+            "details": details,
             "source": "iaai",
         }
         data.append(tmp)

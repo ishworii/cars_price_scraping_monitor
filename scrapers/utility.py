@@ -47,7 +47,7 @@ def get_row_html(listing, source, status):
     if source == "iaii" and status == "new":
         row = f"""
         <tr>
-            <td><img src="{listing['thumbnail']}" width="100"></td>
+            <a href="{listing['details']}"><img src="{listing['thumbnail']}" width="100"></a></td>
             <td>{listing['year']}</td>
             <td>{listing['make']}</td>
             <td>{listing['model']}</td>
@@ -75,7 +75,7 @@ def get_row_html(listing, source, status):
     elif source == "iaii" and status == "update":
         row = f"""
         <tr>
-            <td><img src="{listing['thumbnail']}" width="100"></td>
+            <a href="{listing['details']}"><img src="{listing['thumbnail']}" width="100"></a></td>
             <td>{listing['year']}</td>
             <td>{listing['make']}</td>
             <td>{listing['model']}</td>
@@ -106,7 +106,7 @@ def get_row_html(listing, source, status):
     elif source == "copart" and status == "new":
         row = f"""
         <tr>
-            <td><img src="{listing['thumbnail']}" width="100"></td>
+            <a href="{listing['details']}"><img src="{listing['thumbnail']}" width="100"></a></td>
             <td>{listing['year']}</td>
             <td>{listing['make']}</td>
             <td>{listing['model']}</td>
@@ -131,7 +131,8 @@ def get_row_html(listing, source, status):
     else:
         row = f"""
         <tr>
-            <td><img src="{listing['thumbnail']}" width="100"></td>
+            <td>
+            <a href="{listing['details']}"><img src="{listing['thumbnail']}" width="100"></a></td>
             <td>{listing['year']}</td>
             <td>{listing['make']}</td>
             <td>{listing['model']}</td>
@@ -152,7 +153,6 @@ def get_row_html(listing, source, status):
             <th>Old Price </th>
             <th>Location</th>
             <th>Damage</th>
-            <th>Loss</th>
             <th>Title</th>
         </tr>
         """

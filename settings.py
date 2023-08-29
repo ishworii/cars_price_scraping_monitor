@@ -6,6 +6,7 @@ IAAI_URL = (
 DATABASE_URL = "postgresql://postgres:khanal@localhost:5432/jesse_scraping"
 
 
+# smtp settings
 # SMTP settings
 SMTP_SERVER = "smtp.mandrillapp.com"
 SMTP_PORT = 587  # for tls

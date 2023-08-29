@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import inspect
 from settings import *
 from scrapers import copart, utility
+import json
 
 logger = utility.setup_logger("copart_logger", "copart.log")
 
@@ -22,8 +23,9 @@ def process_scraped_data(data):
     updated_listings = []
     new_listings = []
 
-    for item in data:
-        with get_db_session() as session:
+    # Open a single session for all the database operations
+    with get_db_session() as session:
+        for item in data:
             listing = (
                 session.query(CarListing)
                 .filter_by(
@@ -37,7 +39,6 @@ def process_scraped_data(data):
                 .first()
             )
 
-            # If listing doesn't exist, add to DB and store for email notification
             if not listing:
                 logger.info(
                     f"Adding {item['year_make_model']} from {item['source']} to db"
@@ -45,17 +46,17 @@ def process_scraped_data(data):
                 item["old_price"] = 0
                 new_entry = CarListing(**item)
                 session.add(new_entry)
-                session.commit()
-
                 new_listings.append(item)
-
             else:
-                logger.info(
-                    f"entry found for {item['year_make_model']} from {item['source']},checking for price change."
-                )
-                # If the price has changed, store the data for email notification
-                if listing.buy_now_price != float(item["buy_now_price"]):
-                    logger.info(f"Updating db with new price")
+                old_price = listing.buy_now_price
+                new_price = float(item["buy_now_price"])
+
+                # Update all attributes, even if they haven't changed
+                for key, value in item.items():
+                    setattr(listing, key, value)
+
+                # Special handling for price changes
+                if old_price != new_price:
                     updated_listings.append(
                         {
                             "thumbnail": listing.thumbnail,
@@ -63,27 +64,17 @@ def process_scraped_data(data):
                             "year": listing.year,
                             "make": listing.make,
                             "model": listing.model,
-                            "buy_now_price": item["buy_now_price"],  # New price
-                            "old_price": str(listing.buy_now_price),  # Old price
+                            "buy_now_price": new_price,
+                            "old_price": old_price,
                             "location": listing.location,
                             "damage": listing.damage,
                             "title": listing.title,
+                            "details": listing.details,
                         }
                     )
+                    logger.info(f"Updating db with new price")
 
-                    listing.price = float(item["buy_now_price"])
-
-                # Update the other columns regardless of price change
-                logger.info(f"Updating db with newly scraped data")
-                listing.year = item["year"]
-                listing.make = item["make"]
-                listing.model = item["model"]
-                listing.damage = item["damage"]
-                listing.location = item["location"]
-                listing.title = item["title"]
-                listing.thumbnail = item["thumbnail"]
-
-                session.commit()
+            session.commit()
 
     # Email for new listings
     if new_listings:
@@ -109,7 +100,7 @@ def process_scraped_data(data):
             message=updated_prices_content,
             recipient_email=SENDER_EMAIL,
             sender_email=SENDER_EMAIL,
-            sender_password=SENDER_EMAIL,
+            sender_password=SENDER_PASSWORD,
             smtp_server=SMTP_SERVER,
             smtp_port=SMTP_PORT,
             logger=logger,
@@ -125,6 +116,10 @@ def main():
     scraped_copart = copart.extract_all_data(
         url=COPART_URL, headless=True, proxy_server=proxy_server
     )
+    # with open("copart_scraped.json", "w") as file:
+    #     json.dump(scraped_copart, file)
+    # with open("copart_scraped.json", "r") as file:
+    #     scraped_copart = json.load(file)
 
     process_scraped_data(scraped_copart)
 
