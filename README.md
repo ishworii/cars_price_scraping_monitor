@@ -36,6 +36,18 @@ Make sure you have Google Chrome installed on your server when running in produc
 You will need to update the variable values in `settings.py`:
 
 - `DATABASE_URL`: Set this to the proper database URL.
+
+  ### Database Connection String Format
+
+  For connecting to a PostgreSQL database, use the following format for your `DATABASE_URL`:
+  `postgresql://<username>:<password>@<host>:<port>/<database_name>`
+
+  - `<username>`: The username to authenticate with the database.
+  - `<password>`: The password for the user.
+  - `<host>`: The hostname or IP address of the machine where the database is running.
+  - `<port>`: The port number on which the database is listening (default is 5432).
+  - `<database_name>`: The name of the specific database you want to connect to.
+
 - `PROXY_LIST`: Provide a list of proxies.
 
 ## Setting Up Virtual Environment
