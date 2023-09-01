@@ -82,6 +82,7 @@ def extract_details_from_page(driver):
             match = re.search(pattern, buy_now_price)
             if match:
                 buy_now_price = match.group(1).replace(",", "")
+                buy_now_price = float(buy_now_price)
 
         location = css_finder(each_div, "span[title*='Branch'] a")
         if not location:

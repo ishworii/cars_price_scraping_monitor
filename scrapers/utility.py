@@ -1,37 +1,45 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import smtplib
 from email.message import EmailMessage
 import random
 import logging
 
 
-# define some universal funtions for extraction
-def xpath_finder(driver, xpath, many=False):
-    if many:
-        try:
-            element = driver.find_elements(By.XPATH, xpath)
-            return element
-        except NoSuchElementException:
-            return None
+# Universal function to find elements by XPath with optional wait time
+def xpath_finder(driver, xpath, many=False, wait_time=10):
     try:
-        element = driver.find_element(By.XPATH, xpath)
-        return element
-    except NoSuchElementException:
+        if many:
+            elements = WebDriverWait(driver, wait_time).until(
+                EC.presence_of_all_elements_located((By.XPATH, xpath))
+            )
+            return elements
+        else:
+            element = WebDriverWait(driver, wait_time).until(
+                EC.presence_of_element_located((By.XPATH, xpath))
+            )
+            return element
+    except (NoSuchElementException, TimeoutException):
         return None
 
 
-def css_finder(driver, css, many=False):
-    if many:
-        try:
-            element = driver.find_elements(By.CSS_SELECTOR, css)
-            return element
-        except NoSuchElementException:
-            return None
+# Universal function to find elements by CSS Selector with optional wait time
+def css_finder(driver, css, many=False, wait_time=10):
     try:
-        element = driver.find_element(By.CSS_SELECTOR, css)
-        return element
-    except NoSuchElementException:
+        if many:
+            elements = WebDriverWait(driver, wait_time).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, css))
+            )
+            return elements
+        else:
+            element = WebDriverWait(driver, wait_time).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, css))
+            )
+            return element
+    except (NoSuchElementException, TimeoutException):
         return None
 
 

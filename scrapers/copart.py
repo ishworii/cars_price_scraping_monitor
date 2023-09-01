@@ -59,11 +59,12 @@ def extract_details_from_page(driver):
         )
         if not price:
             logger.warning("Price not found...")
-            price = ""
+            price = 0
         else:
             price = price.text.strip()
             price = price.split("$")[-1]
             price = price.replace(",", "")
+            price = float(price)
 
         location = css_finder(
             each_row,
