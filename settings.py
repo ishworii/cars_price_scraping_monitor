@@ -3,7 +3,7 @@ COPART_URL = "https://www.copart.com/lotSearchResults?free=true&query=&searchCri
 IAAI_URL = (
     "https://www.iaai.com/Search?url=3QzJuSxd42J3x3dKTjiLK4J10fLNbCbeX7vRRgnz1uA%3d"
 )
-DATABASE_URL = "postgresql://postgres:khanal@localhost:5432/jesse_scraping"
+DATABASE_URL = "postgresql://carscraper:t3mp0r4l@localhost:5432/carscraper"
 
 
 # smtp settings
@@ -12,6 +12,7 @@ SMTP_SERVER = "smtp.mandrillapp.com"
 SMTP_PORT = 587  # for tls
 SENDER_EMAIL = "support@wolfautoparts.com"
 SENDER_PASSWORD = "md-FCTRSyfzhMA44xrBmrP3TA"
+RECIPIENT_EMAIL = ["support@wolfautoparts.com", "jeswolf@gmail.com", "dane@wolfautoparts.com", "jay@wolfautoparts.com"]
 
 
 PROXY_LIST = []
